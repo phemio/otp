@@ -1,0 +1,35 @@
+'Dim OTP
+'get otp 
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set objTaskMgrProc = objWMIService.ExecQuery("SELECT * FROM Win32_Process WHERE Name = 'outlook.exe'")
+'If objTaskMgrProc.Count = 0 Then
+'	Set objOutlook = CreateObject("Outlook.Application")
+'ElseIf objTaskMgrProc.Count > 0 Then
+'	Set objOutlook = GetObject(,"Outlook.Application") 
+'End If
+Set objOutlook = CreateObject("Outlook.Application")
+Set objNameSpace = objOutlook.GetNamespace("MAPI")
+Set objInbox= objNameSpace.GetDefaultFolder(6)
+objInbox.Display
+Set objInbox = objInbox.Folders("eEnrolment")
+Set objAllMails = objInbox.Items
+'msgbox objInbox.Items.Count
+'msgbox objAllMails(1).Body
+Do
+	If objAllMails(1).Unread = True and objAllMails(1).Sender = "BCT" Then
+		'Msgbox Left(Split(objAllMails(objInbox.Items.Count).Body,"您的一次性密碼是 ")(1),6)
+		OTP = Left(Split(objAllMails(1).Body,"Your eEnrolment One-Time Password: ")(1),6)
+		objAllMails(1).Unread = False
+		Exit Do
+	End If
+	wait(8)
+Loop
+'objOutlook.Quit()
+'Clear the memory
+Set objOutlook = Nothing
+Set objNamespace = Nothing
+Set objInbox = Nothing
+Set objAllMails = Nothing
+'End OutLook OTP Retrieve
+Browser("Browser").Page("Bank Consortium Trust_4").WebEdit("inputVerificationCode").Set OTP
